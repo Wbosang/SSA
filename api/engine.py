@@ -16,7 +16,8 @@ def do_lectures_conflict(lecture1: Lecture, lecture2: Lecture) -> bool:
 def find_combinations(selected_lecture_nos: List[int], max_combinations: int = 10000) -> List[List[Lecture]]:
     """
     선택된 강의 번호 목록을 기반으로 가능한 모든 시간표 조합을 찾습니다.
-    시간이 겹치지 않는 모든 부분집합을 찾되, 최대 조합 개수를 제한합니다.
+    각 교과목 그룹에서 하나씩 선택하거나, 선택하지 않는 경우를 모두 고려하여
+    시간이 겹치지 않는 모든 조합을 찾습니다.
     """
     all_lectures = load_lectures()
     selected_lectures = [lec for lec in all_lectures if lec.no in selected_lecture_nos]
@@ -24,37 +25,50 @@ def find_combinations(selected_lecture_nos: List[int], max_combinations: int = 1
     if not selected_lectures:
         return []
 
+    course_groups: Dict[str, List[Lecture]] = {}
+    for lec in selected_lectures:
+        if lec.course_id not in course_groups:
+            course_groups[lec.course_id] = []
+        course_groups[lec.course_id].append(lec)
+
+    grouped_courses = list(course_groups.values())
     all_combinations = []
     seen_signatures = set()
 
-    def backtrack(start_index: int, current_combination: List[Lecture]):
+    def backtrack(group_index: int, current_combination: List[Lecture]):
+        # 최대 조합 개수 도달 시, 더 이상의 재귀를 막기 위해 함수 맨 위에서 확인
         if len(all_combinations) >= max_combinations:
             return
 
-        if current_combination:
-            # 사용자가 여러 과목을 선택한 경우, 단일 과목 조합은 추가하지 않음
-            if len(selected_lectures) > 1 and len(current_combination) == 1:
-                pass
-            else:
+        # 모든 그룹을 다 고려한 경우, 현재 조합을 최종 결과에 추가
+        if group_index == len(grouped_courses):
+            if current_combination:
                 combo_signature = frozenset(lec.no for lec in current_combination)
                 if combo_signature not in seen_signatures:
                     all_combinations.append(list(current_combination))
                     seen_signatures.add(combo_signature)
+            return
 
-        for i in range(start_index, len(selected_lectures)):
+        # --- 재귀 호출 --- #
+
+        # 1. 현재 그룹의 과목을 포함하지 않고 다음 그룹으로 넘어가는 경우
+        backtrack(group_index + 1, current_combination)
+
+        # 2. 현재 그룹의 각 과목(분반)을 포함하는 경우를 시도
+        for lecture_to_add in grouped_courses[group_index]:
+            # 루프 중간에도 최대 조합 개수를 확인하여 불필요한 계산 방지
             if len(all_combinations) >= max_combinations:
                 break
 
-            new_lecture = selected_lectures[i]
             is_compatible = True
             for existing_lecture in current_combination:
-                if do_lectures_conflict(existing_lecture, new_lecture):
+                if do_lectures_conflict(existing_lecture, lecture_to_add):
                     is_compatible = False
                     break
             
             if is_compatible:
-                current_combination.append(new_lecture)
-                backtrack(i + 1, current_combination)
+                current_combination.append(lecture_to_add)
+                backtrack(group_index + 1, current_combination)
                 current_combination.pop()
 
     backtrack(0, [])
