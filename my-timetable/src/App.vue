@@ -8,6 +8,19 @@
       <v-container>
         <LectureSelector v-model="selectedCourseIds" />
         <ConditionInput v-model="preferenceText" :loading="loading" @generate="handleGenerate" />
+        
+        <!-- 조건 이해 실패 시 알림 -->
+        <v-alert
+          v-if="!preferencesUnderstood"
+          type="warning"
+          variant="outlined"
+          class="mt-4"
+          closable
+          @click:close="preferencesUnderstood = true"
+        >
+          입력하신 일부 조건을 이해하지 못했습니다. 일반적인 기준으로 시간표를 생성합니다.
+        </v-alert>
+
         <TimetableDisplay 
           :loading="loading" 
           :combination="currentCombination" 
@@ -40,6 +53,7 @@ axios.interceptors.request.use(request => {
 const loading = ref(false)
 const searchPerformed = ref(false)
 const currentCombination = ref([]) // 최종 시간표 조합(1개)을 담을 상태
+const preferencesUnderstood = ref(true) // 조건 이해 여부 상태
 
 // 자식 컴포넌트와 v-model로 연동될 상태들
 const selectedCourseIds = ref([])
@@ -51,6 +65,7 @@ const handleGenerate = async () => {
   loading.value = true;
   searchPerformed.value = true;
   currentCombination.value = []; // 이전 결과 초기화
+  preferencesUnderstood.value = true; // 알림 초기화
 
   try {
     // 백엔드 API에 POST 요청 전송
@@ -59,9 +74,12 @@ const handleGenerate = async () => {
       user_preference_text: preferenceText.value
     });
     
+    const { timetables, preferences_understood } = response.data;
+    preferencesUnderstood.value = preferences_understood;
+
     // API로부터 받은 여러 조합 중 첫 번째 조합을 화면에 표시
-    if (response.data && response.data.length > 0) {
-      currentCombination.value = response.data[0];
+    if (timetables && timetables.length > 0) {
+      currentCombination.value = timetables[0];
     } else {
       currentCombination.value = [];
     }

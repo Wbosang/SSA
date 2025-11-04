@@ -58,9 +58,13 @@ def generate_timetable(request: TimetableRequest):
 
         # 2. 사용자 선호도 분석 (선호도 텍스트가 있을 경우에만)
         preferences = UserPreferences()
+        preferences_understood = True
         if request.user_preference_text:
             preferences_dict = parse_user_preferences(request.user_preference_text)
-            if preferences_dict:
+            # 파싱 결과가 비어있거나, 모든 값이 None이면 이해하지 못한 것으로 간주
+            if not preferences_dict or all(value is None for value in preferences_dict.values()):
+                preferences_understood = False
+            else:
                 preferences = UserPreferences.model_validate(preferences_dict)
 
         # 3. 기본 가중치로 조합 순위 매기기
@@ -70,7 +74,10 @@ def generate_timetable(request: TimetableRequest):
         # 4. 결과를 JSON으로 변환하기 쉬운 딕셔너리 리스트로 변환
         result_json = [[lecture.model_dump() for lecture in combo] for combo in ranked_combinations]
         
-        return result_json
+        return {
+            "timetables": result_json,
+            "preferences_understood": preferences_understood
+        }
 
     except ValueError as e:
         # API 키가 없는 경우 등의 에러 처리

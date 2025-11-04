@@ -6,7 +6,12 @@
     </v-overlay>
 
     <v-card class="mt-6">
-      <v-card-title>시간표 결과</v-card-title>
+      <v-card-title class="d-flex justify-space-between align-center">
+        <span>시간표 결과</span>
+        <v-chip v-if="searchPerformed && tableItems.length > 0" color="primary" label>
+          총 {{ totalCredits }}학점
+        </v-chip>
+      </v-card-title>
       <v-card-text>
         <!-- 1. 검색 수행되었고 결과가 있을 때: 시간표 테이블 -->
         <v-data-table
@@ -43,13 +48,19 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps } from 'vue';
+import { ref, watch, computed, defineProps } from 'vue';
 
 // 부모 컴포넌트로부터 props를 받습니다.
 const props = defineProps({
   loading: Boolean,
   combination: Array, // 시간표 조합 데이터
   searchPerformed: Boolean, // 검색 버튼을 눌렀는지 여부
+});
+
+// 총 학점을 계산하는 계산된 속성
+const totalCredits = computed(() => {
+  if (!props.combination) return 0;
+  return props.combination.reduce((sum, lecture) => sum + lecture.credits, 0);
 });
 
 const headers = [

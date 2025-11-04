@@ -89,10 +89,13 @@ def rank_combinations(
 
     day_map_inv = {0: '월', 1: '화', 2: '수', 3: '목', 4: '금'}
 
-    # 1. 사용자 선호도에 따른 하드 필터링 (예: 공강 요일)
-    hard_filtered_combinations = []
+    # 사용자 선호도에 따른 하드 필터링
+    current_combos = filtered_combinations
+
+    # 1. 공강 요일 필터링
     if preferences.no_class_days:
-        for combo in filtered_combinations:
+        temp_combos = []
+        for combo in current_combos:
             present_days = {slot['day'] for lecture in combo for slot in get_time_slots(lecture)}
             is_valid = True
             for day_str in preferences.no_class_days:
@@ -101,13 +104,49 @@ def rank_combinations(
                     is_valid = False
                     break
             if is_valid:
-                hard_filtered_combinations.append(combo)
-    else:
-        hard_filtered_combinations = filtered_combinations
+                temp_combos.append(combo)
+        current_combos = temp_combos
+
+    # 2. 오전/오후 수업 회피 필터링
+    if preferences.avoid_morning:
+        temp_combos = []
+        for combo in current_combos:
+            has_morning_class = any(slot['period'] in {1, 2, 3, 4} for lecture in combo for slot in get_time_slots(lecture))
+            if not has_morning_class:
+                temp_combos.append(combo)
+        current_combos = temp_combos
+
+    if preferences.avoid_afternoon:
+        temp_combos = []
+        for combo in current_combos:
+            has_afternoon_class = any(slot['period'] >= 5 for lecture in combo for slot in get_time_slots(lecture))
+            if not has_afternoon_class:
+                temp_combos.append(combo)
+        current_combos = temp_combos
+
+    # 3. 연강 회피 필터링
+    if preferences.no_consecutive_classes:
+        temp_combos = []
+        for combo in current_combos:
+            is_valid = True
+            all_slots = [slot for lecture in combo for slot in get_time_slots(lecture)]
+            present_days = {slot['day'] for slot in all_slots}
+            for day in present_days:
+                day_slots = sorted([s['period'] for s in all_slots if s['day'] == day])
+                if len(day_slots) > 1:
+                    for i in range(len(day_slots) - 1):
+                        if day_slots[i+1] == day_slots[i] + 1:
+                            is_valid = False
+                            break
+                if not is_valid:
+                    break
+            if is_valid:
+                temp_combos.append(combo)
+        current_combos = temp_combos
 
     scored_combinations = []
 
-    for combo in hard_filtered_combinations:
+    for combo in current_combos:
         score = 0
         all_slots = [slot for lecture in combo for slot in get_time_slots(lecture)]
         
@@ -115,8 +154,16 @@ def rank_combinations(
             scored_combinations.append((combo, -9999)) # 점수를 매우 낮게 설정
             continue
 
-        # 기본 점수 계산
-        score += sum(lec.credits for lec in combo) * weights.maximize_credits
+        # 학점 점수 계산 (목표 학점 우선)
+        total_credits = sum(lec.credits for lec in combo)
+        if preferences.target_credits is not None:
+            # 목표 학점과의 차이가 적을수록 높은 점수 부여
+            credit_diff = abs(total_credits - preferences.target_credits)
+            # 점수 기여도를 높이기 위해 10을 곱함
+            score += (1 / (1 + credit_diff)) * 10 * weights.user_preference_multiplier 
+        else:
+            # 목표 학점이 없으면, 기존의 학점 최대화 점수를 적용
+            score += total_credits * weights.maximize_credits
         
         if all_slots:
             present_days = {slot['day'] for slot in all_slots}
@@ -161,8 +208,7 @@ def rank_combinations(
             if afternoon_ratio > 0.5: # 50% 이상이 오후 수업일 경우
                 user_preference_score += afternoon_ratio
 
-        if preferences.no_consecutive_classes and consecutive_lectures > 0:
-            user_preference_score -= 1 # 연강 선호도 위반
+
 
         score += user_preference_score * weights.user_preference_multiplier
 

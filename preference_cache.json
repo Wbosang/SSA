@@ -1,0 +1,118 @@
+{
+    "금요일은 공강": {
+        "no_class_days": [
+            "금"
+        ],
+        "prefer_morning": null,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": null
+    },
+    "오전 수업 싫어요": {
+        "no_class_days": null,
+        "prefer_morning": false,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": null
+    },
+    "오후 수업 없애주세요": {
+        "no_class_days": null,
+        "prefer_morning": null,
+        "prefer_afternoon": false,
+        "no_consecutive_classes": null
+    },
+    "아침 수업 없애주세요": {
+        "no_class_days": null,
+        "prefer_morning": false,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": null
+    },
+    "화 공강": {
+        "no_class_days": [
+            "화"
+        ],
+        "prefer_morning": null,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": null,
+        "target_credits": null
+    },
+    "연강 없애줘": {
+        "no_class_days": null,
+        "prefer_morning": null,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": true,
+        "target_credits": null
+    },
+    "월 공강": {
+        "no_class_days": [
+            "월요일"
+        ],
+        "prefer_morning": null,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": null,
+        "target_credits": null
+    },
+    "오전 수업은 없애주세요": {
+        "no_class_days": null,
+        "prefer_morning": false,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": null,
+        "target_credits": null
+    },
+    "오전 수업은 싫어요 ": {
+        "no_class_days": null,
+        "avoid_morning": true,
+        "avoid_afternoon": null,
+        "prefer_morning": null,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": null,
+        "target_credits": null
+    },
+    "오전 수업은 싫어요": {
+        "no_class_days": null,
+        "avoid_morning": true,
+        "avoid_afternoon": null,
+        "prefer_morning": null,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": null,
+        "target_credits": null
+    },
+    "연강 없애주세요": {
+        "no_class_days": null,
+        "avoid_morning": null,
+        "avoid_afternoon": null,
+        "prefer_morning": null,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": true,
+        "target_credits": null
+    },
+    "연강 싫어요": {
+        "no_class_days": null,
+        "avoid_morning": null,
+        "avoid_afternoon": null,
+        "prefer_morning": null,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": true,
+        "target_credits": null
+    },
+    "금요일 공강해주세요": {
+        "no_class_days": [
+            "FRIDAY"
+        ],
+        "avoid_morning": null,
+        "avoid_afternoon": null,
+        "prefer_morning": null,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": null,
+        "target_credits": null
+    },
+    "금요일 싫어요": {
+        "no_class_days": [
+            "금요일"
+        ],
+        "avoid_morning": null,
+        "avoid_afternoon": null,
+        "prefer_morning": null,
+        "prefer_afternoon": null,
+        "no_consecutive_classes": null,
+        "target_credits": null
+    }
+}

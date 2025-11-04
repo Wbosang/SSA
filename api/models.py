@@ -10,9 +10,11 @@ class Lecture(BaseModel):
     course_id: str = Field(alias='교과번호')
     class_section: str = Field(alias='분반')
     course_name: str = Field(alias='교과목명')
+    grade: str = Field(alias='학년')
     credits: int = Field(alias='학점')
     department: str = Field(alias='학부(과)')
     course_type: str = Field(alias='교과구분')
+    detailed_area: str = Field(alias='세부영역')
     raw_time_location: Optional[str] = Field(alias='수업시간(강의실)')
 
 class ScoringWeights(BaseModel):
@@ -35,6 +37,14 @@ class UserPreferences(BaseModel):
         default=None, 
         description="수업이 없기를 바라는 요일 목록 (예: ['금', '월'])"
     )
+    avoid_morning: Optional[bool] = Field(
+        default=None, 
+        description="오전 수업(1-4교시)을 피하고 싶은지 여부. 사용자가 '오전' 또는 '아침' 수업을 피하고 싶다고 명시적으로 언급할 때만 True로 설정합니다."
+    )
+    avoid_afternoon: Optional[bool] = Field(
+        default=None, 
+        description="오후 수업(5교시 이후)을 피하고 싶은지 여부. 사용자가 '오후' 또는 '저녁' 수업을 피하고 싶다고 명시적으로 언급할 때만 True로 설정합니다."
+    )
     prefer_morning: Optional[bool] = Field(
         default=None, 
         description="오전 수업(1-4교시)을 선호하는지 여부. 사용자가 '오전' 또는 '아침' 수업을 명시적으로 언급할 때만 True로 설정합니다."
@@ -46,4 +56,8 @@ class UserPreferences(BaseModel):
     no_consecutive_classes: Optional[bool] = Field(
         default=None,
         description="연강(연속된 수업)을 피하고 싶은지 여부. 사용자가 '연강', '우주공강' 등을 명시적으로 언급할 때 True로 설정합니다."
+    )
+    target_credits: Optional[int] = Field(
+        default=None,
+        description="사용자가 원하는 목표 학점. 사용자가 '20학점'처럼 특정 학점을 언급할 때 해당 숫자를 추출합니다."
     )

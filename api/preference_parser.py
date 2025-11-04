@@ -52,10 +52,14 @@ def parse_user_preferences(user_input: str) -> Dict:
     llm = ChatGoogleGenerativeAI(model="gemini-pro-latest", google_api_key=api_key, convert_system_message_to_human=True)
     structured_llm = llm.with_structured_output(UserPreferences)
 
-    result = structured_llm.invoke(user_input)
-    
-    # Pydantic 모델을 딕셔너리로 변환
-    result_dict = result.model_dump()
+    try:
+        # 8초의 타임아웃 설정
+        result = structured_llm.invoke(user_input, config={"configurable": {"timeout": 8}})
+        result_dict = result.model_dump()
+    except Exception as e:
+        # 타임아웃 또는 다른 오류 발생 시, 빈 딕셔너리 반환
+        print(f"Preference parsing error: {e}")
+        result_dict = {}
 
     preference_cache[user_input] = result_dict
     save_cache(preference_cache)
