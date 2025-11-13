@@ -31,6 +31,18 @@ def save_cache(cache: Dict[str, Dict]):
 
 preference_cache = load_cache()
 
+def clear_preference_cache():
+    """
+    메모리와 디스크에서 캐시를 모두 지웁니다.
+    """
+    global preference_cache
+    preference_cache.clear()
+    if os.path.exists(CACHE_FILE):
+        try:
+            os.remove(CACHE_FILE)
+        except OSError as e:
+            print(f"Error removing cache file: {e}")
+
 def parse_user_preferences(user_input: str) -> Dict:
     """
     사용자의 자연어 입력을 LangChain과 LLM을 사용하여 분석하고,
@@ -49,7 +61,7 @@ def parse_user_preferences(user_input: str) -> Dict:
     if not api_key:
         raise ValueError("GOOGLE_API_KEY 환경 변수를 찾을 수 없습니다. .env 파일을 확인하세요.")
 
-    llm = ChatGoogleGenerativeAI(model="gemini-pro-latest", google_api_key=api_key, convert_system_message_to_human=True)
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite", google_api_key=api_key, convert_system_message_to_human=True)
     structured_llm = llm.with_structured_output(UserPreferences)
 
     try:

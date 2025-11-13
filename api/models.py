@@ -35,29 +35,37 @@ class UserPreferences(BaseModel):
     """
     no_class_days: Optional[List[str]] = Field(
         default=None, 
-        description="수업이 없기를 바라는 요일 목록 (예: ['금', '월'])"
+        description="수업이 없는 공강 요일을 한국어로 반환합니다. '월공강', '목 공강' 같은 입력에서 요일을 추출합니다. 출력은 반드시 ['월', '화', '수', '목', '금'] 중 하나여야 합니다. 예: '금요일 공강' -> ['금']"
     )
     avoid_morning: Optional[bool] = Field(
         default=None, 
-        description="오전 수업(1-4교시)을 피하고 싶은지 여부. 사용자가 '오전' 또는 '아침' 수업을 피하고 싶다고 명시적으로 언급할 때만 True로 설정합니다."
+        description="오전 수업(1-4교시)을 피하고 싶은지 여부. 사용자가 '오전 수업 싫어', '아침 수업 없애줘' 등 명시적으로 언급할 때만 True로 설정합니다."
     )
     avoid_afternoon: Optional[bool] = Field(
         default=None, 
-        description="오후 수업(5교시 이후)을 피하고 싶은지 여부. 사용자가 '오후' 또는 '저녁' 수업을 피하고 싶다고 명시적으로 언급할 때만 True로 설정합니다."
+        description="오후 수업(5교시 이후)을 피하고 싶은지 여부. 사용자가 '오후 수업 싫어', '저녁 수업 없애줘' 등 명시적으로 언급할 때만 True로 설정합니다."
     )
     prefer_morning: Optional[bool] = Field(
         default=None, 
-        description="오전 수업(1-4교시)을 선호하는지 여부. 사용자가 '오전' 또는 '아침' 수업을 명시적으로 언급할 때만 True로 설정합니다."
+        description="오전 수업(1-4교시)을 선호하는지 여부. 사용자가 '오전' 또는 '아침' 수업을 선호한다고 명시적으로 언급할 때만 True로 설정합니다."
     )
     prefer_afternoon: Optional[bool] = Field(
         default=None, 
-        description="오후 수업(5교시 이후)을 선호하는지 여부. 사용자가 '오후' 또는 '저녁' 수업을 명시적으로 언급할 때만 True로 설정합니다."
+        description="오후 수업(5교시 이후)을 선호하는지 여부. 사용자가 '오후' 또는 '저녁' 수업을 선호한다고 명시적으로 언급할 때만 True로 설정합니다."
     )
     no_consecutive_classes: Optional[bool] = Field(
         default=None,
-        description="연강(연속된 수업)을 피하고 싶은지 여부. 사용자가 '연강', '우주공강' 등을 명시적으로 언급할 때 True로 설정합니다."
+        description="연강(연속된 수업)을 피하고 싶은지 여부. 사용자가 '연강 싫어', '연강 없게', '우주공강' 등을 명시적으로 언급할 때 True로 설정합니다."
     )
     target_credits: Optional[int] = Field(
         default=None,
         description="사용자가 원하는 목표 학점. 사용자가 '20학점'처럼 특정 학점을 언급할 때 해당 숫자를 추출합니다."
+    )
+    must_include_lectures: Optional[List[int]] = Field(
+        default=None,
+        description="반드시 포함해야 하는 강의의 번호(NO.) 목록. 사용자가 '컴퓨터 구조는 꼭 넣어줘' 와 같이 특정 과목을 지정하면, 해당 과목의 모든 분반(강의 번호)을 추출합니다. 또는 '12345 강의는 필수로' 와 같이 강의 번호를 직접 언급할 때 해당 번호를 추출합니다."
+    )
+    prefer_empty_lunch: Optional[bool] = Field(
+        default=None,
+        description="점심시간(4교시 또는 5교시)을 비우고 싶은지 여부. '점심시간 확보', '밥 먹을 시간' 등의 언급이 있을 때 True로 설정합니다."
     )

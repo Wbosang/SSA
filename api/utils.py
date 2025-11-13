@@ -34,6 +34,55 @@ def parse_time_location(raw_str: Optional[str]) -> List[Dict[str, int]]:
             
     return parsed_slots
 
+def normalize_day_format(days: List[str]) -> List[str]:
+    """
+    LLM이 반환한 다양한 형태의 요일 문자열을 표준 형식('월', '화', ...)으로 변환합니다.
+    예: ['FRIDAY', '화요일', '수'] -> ['금', '화', '수']
+    """
+    if not days:
+        return []
+
+    day_map = {
+        'mon': '월', '월': '월',
+        'tue': '화', '화': '화',
+        'wed': '수', '수': '수',
+        'thu': '목', '목': '목',
+        'fri': '금', '금': '금',
+    }
+    
+    normalized_days = set()
+    for day in days:
+        day_lower = day.lower()
+        for key, value in day_map.items():
+            if key in day_lower:
+                normalized_days.add(value)
+                break
+    
+    return sorted(list(normalized_days), key=lambda d: ['월', '화', '수', '목', '금'].index(d))
+
+def preprocess_preference_text(text: str) -> str:
+    """
+    LLM이 더 잘 이해하도록 사용자 입력 텍스트를 전처리합니다.
+    예: "월 공강" -> "월요일 공강"
+    """
+    # 요일 약어와 전체 이름 매핑
+    day_map = {
+        '월': '월요일',
+        '화': '화요일',
+        '수': '수요일',
+        '목': '목요일',
+        '금': '금요일',
+    }
+
+    # 정규표현식을 사용하여 "(요일) 공강" 패턴을 찾고 변환
+    for short, full in day_map.items():
+        # "월 공강", "월공강" 같은 패턴을 찾되, "월요일"은 건드리지 않도록
+        # (?!요일)은 "요일"이라는 문자열이 뒤따라오지 않는 경우에만 매치 (Negative Lookahead)
+        pattern = re.compile(f'{short}(?!요일)\s*공강')
+        text = pattern.sub(f'{full} 공강', text)
+
+    return text
+
 # --- 테스트를 위한 실행 블록 (핵심 원칙 4) ---
 if __name__ == '__main__':
     print("--- 시간 파싱 유틸리티 테스트 시작 ---")
