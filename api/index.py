@@ -15,10 +15,8 @@ from .utils import normalize_day_format, preprocess_preference_text
 app = FastAPI()
 
 # CORS 미들웨어 추가
-# 프론트엔드 개발 서버(localhost:5173) API 요청을 허용합니다.
-origins = [
-    "http://localhost:5173",
-]
+# 프론트엔드 개발 서버(localhost:5173) 및 Vercel 배포 환경에서 API 요청을 허용합니다.
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,

@@ -69,7 +69,7 @@ const handleGenerate = async () => {
 
   try {
     // 백엔드 API에 POST 요청 전송
-    const response = await axios.post('http://localhost:8000/api/generate', {
+    const response = await axios.post('/api/generate', {
       lecture_nos: selectedCourseIds.value,
       user_preference_text: preferenceText.value
     });

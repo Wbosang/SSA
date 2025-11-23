@@ -164,7 +164,7 @@ watch(selectedPeriod, (newValue) => {
 // --- API 호출 ---
 onMounted(async () => {
   try {
-    const response = await axios.get('http://localhost:8000/api/lectures');
+    const response = await axios.get('/api/lectures');
     allLectures.value = response.data;
     console.log(`성공: ${allLectures.value.length}개의 분반을 모두 로드했습니다.`);
   } catch (error) {
