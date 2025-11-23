@@ -2,13 +2,6 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "includeFiles": "data/**"
-      }
-    },
-    {
       "src": "my-timetable/package.json",
       "use": "@vercel/static-build",
       "config": { "distDir": "dist" }
@@ -20,11 +13,15 @@
       "dest": "api/index.py"
     },
     {
-      "handle": "filesystem"
+      "src": "/assets/(.*)",
+      "headers": {
+        "cache-control": "s-maxage=31536000, immutable"
+      },
+      "dest": "/my-timetable/assets/$1"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/my-timetable/index.html"
     }
   ]
 }
