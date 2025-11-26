@@ -72,6 +72,10 @@ const handleGenerate = async () => {
     const response = await axios.post('/api/generate', {
       lecture_nos: selectedCourseIds.value,
       user_preference_text: preferenceText.value
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
     
     const { timetables, preferences_understood } = response.data;
