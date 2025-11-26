@@ -175,18 +175,65 @@ onMounted(async () => {
 
 // --- 필터링 로직 ---
 
-// 각 필터의 선택지를 동적으로 생성하는 계산된 속성
+// 각 필터의 선택지를 동적으로 생성하는 계산된 속성 (종속형 드롭다운 구현)
 const departments = computed(() => [...new Set(allLectures.value.map(l => l.department))].sort());
-const courseTypes = computed(() => [...new Set(allLectures.value.map(l => l.course_type))].sort());
-const detailedAreas = computed(() => [...new Set(allLectures.value.map(l => l.detailed_area))].sort());
+
+const courseTypes = computed(() => {
+  let lectures = allLectures.value;
+  if (selectedDepartment.value) {
+    lectures = lectures.filter(l => l.department === selectedDepartment.value);
+  }
+  return [...new Set(lectures.map(l => l.course_type))].sort();
+});
+
+const detailedAreas = computed(() => {
+  let lectures = allLectures.value;
+  if (selectedDepartment.value) {
+    lectures = lectures.filter(l => l.department === selectedDepartment.value);
+  }
+  if (selectedCourseType.value) {
+    lectures = lectures.filter(l => l.course_type === selectedCourseType.value);
+  }
+  return [...new Set(lectures.map(l => l.detailed_area))].sort();
+});
+
 const grades = computed(() => {
-  const gradeSet = new Set(allLectures.value.map(l => l.grade));
-  gradeSet.delete('34');
-  return Array.from(gradeSet).sort((a, b) => {
+  let gradeOptions = new Set();
+  
+  if (selectedDepartment.value === '건축학전공') {
+    // If '건축학전공' is selected, get all grades available for it
+    allLectures.value.filter(l => l.department === '건축학전공')
+                     .map(l => l.grade)
+                     .forEach(g => gradeOptions.add(g));
+  } else if (selectedDepartment.value) {
+    // If any other department is selected, limit to 1-4
+    gradeOptions.add('1');
+    gradeOptions.add('2');
+    gradeOptions.add('3');
+    gradeOptions.add('4');
+  } else {
+    // If no department is selected, show all grades except '34' (current default)
+    allLectures.value.map(l => l.grade)
+                     .filter(g => g !== '34')
+                     .forEach(g => gradeOptions.add(g));
+  }
+
+  return Array.from(gradeOptions).sort((a, b) => {
     const numA = parseInt(a, 10);
     const numB = parseInt(b, 10);
     return numA - numB;
   });
+});
+
+// --- 종속형 드롭다운 값 초기화 Watchers ---
+watch(selectedDepartment, () => {
+  selectedCourseType.value = null;
+  selectedDetailedArea.value = null;
+  selectedGrade.value = []; // 학부 변경 시 학년도 초기화
+});
+
+watch(selectedCourseType, () => {
+  selectedDetailedArea.value = null;
 });
 
 // 모든 필터를 적용하여 최종 강의 목록을 반환하는 계산된 속성
