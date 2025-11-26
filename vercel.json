@@ -2,6 +2,10 @@
   "version": 2,
   "builds": [
     {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
       "src": "my-timetable/package.json",
       "use": "@vercel/static-build",
       "config": { "distDir": "dist" }
