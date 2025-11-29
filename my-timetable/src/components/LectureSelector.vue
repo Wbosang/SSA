@@ -93,6 +93,7 @@
       chips
       closable-chips
       multiple
+      clearable
       label="원하는 강의(분반)를 선택하세요 (과목명 또는 교과번호로 검색)"
       variant="underlined"
       :menu-props="{ maxHeight: '400px' }"

@@ -35,7 +35,11 @@ class UserPreferences(BaseModel):
     """
     no_class_days: Optional[List[str]] = Field(
         default=None, 
-        description="수업이 없는 공강 요일을 한국어로 반환합니다. '월공강', '목 공강' 같은 입력에서 요일을 추출합니다. 출력은 반드시 ['월', '화', '수', '목', '금'] 중 하나여야 합니다. 예: '금요일 공강' -> ['금']"
+        description="수업이 없는 공강 요일을 한국어로 반환합니다. 사용자가 '금공강', '금요일 수업 빼줘', '주 4일제 하고 싶어(이 경우 하루를 임의로 선택하거나 문맥상 가능한 요일)' 등 다양한 표현으로 공강을 원할 때 요일을 추출합니다. 출력은 반드시 ['월', '화', '수', '목', '금'] 중 하나여야 합니다. 예: '금요일 공강 원해요' -> ['금']"
+    )
+    avoid_periods: Optional[List[int]] = Field(
+        default=None,
+        description="피하고 싶은 특정 교시를 정수 리스트로 반환합니다. 사용자가 '1교시 싫어', '1교시는 제외해줘', '9교시 수업 빼줘' 등 특정 교시를 명시적으로 언급할 때 해당 교시 번호를 추출합니다. 예: '1교시 안 듣고 싶어' -> [1], '1, 9교시 제외' -> [1, 9]"
     )
     avoid_morning: Optional[bool] = Field(
         default=None, 

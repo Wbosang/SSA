@@ -196,6 +196,40 @@ def rank_combinations(
                 temp_combos.append(combo)
         current_combos = temp_combos
 
+    # 1-1. 특정 교시 회피 필터링 (New)
+    if preferences.avoid_periods:
+        temp_combos = []
+        for combo in current_combos:
+            has_avoided_period = False
+            for lecture in combo:
+                for slot in get_time_slots(lecture):
+                    if slot['period'] in preferences.avoid_periods:
+                        has_avoided_period = True
+                        break
+                if has_avoided_period:
+                    break
+            
+            if not has_avoided_period:
+                temp_combos.append(combo)
+        current_combos = temp_combos
+
+    # 1-1. 특정 교시 회피 필터링 (New)
+    if preferences.avoid_periods:
+        temp_combos = []
+        for combo in current_combos:
+            has_avoided_period = False
+            for lecture in combo:
+                for slot in get_time_slots(lecture):
+                    if slot['period'] in preferences.avoid_periods:
+                        has_avoided_period = True
+                        break
+                if has_avoided_period:
+                    break
+            
+            if not has_avoided_period:
+                temp_combos.append(combo)
+        current_combos = temp_combos
+
     # 2. 오전/오후 수업 회피 필터링
     if preferences.avoid_morning:
         temp_combos = []
