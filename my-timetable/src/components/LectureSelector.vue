@@ -55,10 +55,19 @@
         dense
         variant="underlined"
         multiple
-        chips
-        closable-chips
         clearable
       >
+        <template v-slot:selection="{ item, index }">
+          <v-chip v-if="index === 0">
+            <span>{{ item.title }}</span>
+          </v-chip>
+          <span
+            v-if="index === 1"
+            class="text-grey text-caption align-self-center"
+          >
+            (+{{ selectedDay.length - 1 }}개)
+          </span>
+        </template>
         <template v-slot:item="{ props, item }">
           <v-list-item v-bind="props" :title="item.raw"></v-list-item>
         </template>
@@ -72,10 +81,19 @@
         dense
         variant="underlined"
         multiple
-        chips
-        closable-chips
         clearable
       >
+        <template v-slot:selection="{ item, index }">
+          <v-chip v-if="index === 0">
+            <span>{{ item.title }}</span>
+          </v-chip>
+          <span
+            v-if="index === 1"
+            class="text-grey text-caption align-self-center"
+          >
+            (+{{ selectedPeriod.length - 1 }}개)
+          </span>
+        </template>
         <template v-slot:item="{ props, item }">
           <v-list-item v-bind="props" :title="item.raw"></v-list-item>
         </template>
