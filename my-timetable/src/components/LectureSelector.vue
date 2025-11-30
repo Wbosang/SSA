@@ -38,16 +38,25 @@
         dense
         variant="underlined"
         multiple
-        chips
-        closable-chips
         clearable
       >
+        <template v-slot:selection="{ item, index }">
+          <v-chip v-if="index === 0">
+            <span>{{ item.title }}</span>
+          </v-chip>
+          <span
+            v-if="index === 1"
+            class="text-grey text-caption align-self-center"
+          >
+            (+{{ selectedGrade.length - 1 }}개)
+          </span>
+        </template>
         <template v-slot:item="{ props, item }">
           <v-list-item v-bind="props" :title="item.raw"></v-list-item>
         </template>
       </v-select>
     </v-col>
-    <v-col cols="12" md="1">
+    <v-col cols="12" md="2">
       <v-select
         v-model="selectedDay"
         :items="days"
@@ -75,7 +84,8 @@
     </v-col>
     <v-col cols="12" md="2">
       <v-select
-        v-model="selectedPeriod"
+        :model-value="selectedPeriod"
+        @update:model-value="handlePeriodChange"
         :items="periods"
         label="교시"
         dense
@@ -172,12 +182,68 @@ watch(selectedDay, (newValue) => {
 });
 
 watch(selectedPeriod, (newValue) => {
+  // 정렬만 수행 (로직은 handlePeriodChange에서 처리)
   newValue.sort((a, b) => {
     if (a === '전체') return -1;
     if (b === '전체') return 1;
     return parseInt(a, 10) - parseInt(b, 10);
   });
 });
+
+// --- 교시 선택 핸들러 (전체 선택 로직) ---
+function handlePeriodChange(newVal) {
+  const allOption = '전체';
+  const allSpecifics = periods.filter(p => p !== allOption);
+  
+  const oldVal = selectedPeriod.value;
+  const isAllInNew = newVal.includes(allOption);
+  const isAllInOld = oldVal.includes(allOption);
+
+  let finalSelection = [];
+
+  // 1. '전체' 옵션이 방금 클릭되어 추가된 경우
+  if (isAllInNew && !isAllInOld) {
+    finalSelection = [...periods]; // 전체 선택
+  }
+  // 2. '전체' 옵션이 방금 클릭되어 해제된 경우
+  else if (!isAllInNew && isAllInOld) {
+    // 사용자가 '전체' 칩을 직접 삭제했거나 체크를 해제한 경우 -> 모두 해제
+    // 단, 특정 항목 하나를 해제해서 '전체'가 빠진 경우는 아래 3번 로직에서 처리됨.
+    // Vuetify에서 '전체'를 클릭해서 해제하면 newVal에는 나머지 항목들이 들어있음.
+    // 하지만 우리는 '전체'를 클릭하면 모두 해제하고 싶음.
+    
+    // 만약 newVal의 길이가 oldVal보다 1 작다면(전체만 빠짐) -> 모두 해제 의도
+    if (newVal.length === oldVal.length - 1) {
+         finalSelection = [];
+    } else {
+        // 그 외(특정 항목 해제로 인해 전체가 빠진 경우 등) -> 그대로 둠 (3번 로직으로)
+        finalSelection = newVal;
+    }
+  } 
+  // 3. 개별 항목을 클릭한 경우
+  else {
+    const newSpecifics = newVal.filter(p => p !== allOption);
+    
+    // 모든 개별 항목이 선택되었는지 확인
+    if (newSpecifics.length === allSpecifics.length) {
+      // 모두 선택됨 -> '전체' 포함
+      if (!isAllInNew) {
+        finalSelection = [allOption, ...newSpecifics];
+      } else {
+        finalSelection = newVal;
+      }
+    } else {
+      // 일부만 선택됨 -> '전체' 제외
+      if (isAllInNew) {
+        finalSelection = newSpecifics;
+      } else {
+        finalSelection = newVal;
+      }
+    }
+  }
+  
+  selectedPeriod.value = finalSelection;
+}
 
 
 // --- API 호출 ---
