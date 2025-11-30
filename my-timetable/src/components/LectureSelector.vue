@@ -30,7 +30,7 @@
         clearable
       ></v-select>
     </v-col>
-    <v-col cols="12" md="1">
+    <v-col cols="12" md="2">
       <v-select
         v-model="selectedGrade"
         :items="grades"
@@ -47,7 +47,7 @@
         </template>
       </v-select>
     </v-col>
-    <v-col cols="12" md="2">
+    <v-col cols="12" md="1">
       <v-select
         v-model="selectedDay"
         :items="days"
